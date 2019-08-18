@@ -1,0 +1,33 @@
+image: docker:latest
+
+services:
+  - docker:dind
+
+build_and_deploy_latest:
+  script:
+    - echo "################################################################################"
+    - echo "Building ${CONTAINER_REGISTRY}:latest"
+    - echo "################################################################################"
+    - docker build -t "${CONTAINER_REGISTRY}:latest" .
+    - echo "################################################################################"
+    - echo "Pushing ${CONTAINER_REGISTRY}:latest"
+    - echo "################################################################################"
+    - echo "${CONTAINER_REGISTRY_PASSWORD}" | docker login -u "${CONTAINER_REGISTRY_USERNAME}" --password-stdin
+    - docker push "${CONTAINER_REGISTRY}:latest"
+  only:
+    refs:
+      - master
+
+build_and_deploy_tagged:
+  script:
+    - echo "################################################################################"
+    - echo "Building ${CONTAINER_REGISTRY}:${CI_COMMIT_TAG}"
+    - echo "################################################################################"
+    - docker build -t "${CONTAINER_REGISTRY}:${CI_COMMIT_TAG}" .
+    - echo "################################################################################"
+    - echo "Pushing ${CONTAINER_REGISTRY}:${CI_COMMIT_TAG}"
+    - echo "################################################################################"
+    - echo "${CONTAINER_REGISTRY_PASSWORD}" | docker login -u "${CONTAINER_REGISTRY_USERNAME}" --password-stdin
+    - docker push "${CONTAINER_REGISTRY}:${CI_COMMIT_TAG}"
+  only:
+    - tags 
